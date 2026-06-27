@@ -120,62 +120,54 @@ class CortexConnect(QWidget):
         for server in servers:
             self.server_layout.addWidget(self.create_server_card(server))
 
-    def create_server_card(self, server):
-        sid, name, stype, host, port, username, password, notes = server
+        def create_server_card(self, server):
+            sid, name, stype, host, port, username, password, notes = server
 
-    card = QFrame()
-    card.setObjectName("Card")
+            card = QFrame()
+            card.setObjectName("Card")
 
-    layout = QHBoxLayout()
-    layout.setContentsMargins(18, 16, 18, 16)
+            layout = QHBoxLayout()
+            layout.setContentsMargins(18, 16, 18, 16)
 
-    icon = {"SSH": "💻", "RDP": "🖥️", "VNC": "📺"}.get(stype, "🌐")
+            icon = {"SSH": "💻", "RDP": "🖥️", "VNC": "📺"}.get(stype, "🌐")
 
-    online = ping_host(host)
+            online = ping_host(host)
+            status = "🟢 Online" if online else "🔴 Offline"
 
-    status = "🟢 Online" if online else "🔴 Offline"
+            info = QLabel(f"""
+                <b>{icon} {name}</b>
+                <br>
+                {stype}
+                <br>
+                {username}@{host}:{port}
+                <br>
+                {status}
+            """)
 
-    info = QLabel(f"""
-        <b>{icon} {name}</b>
+            info.setStyleSheet("""
+                font-size: 17px;
+                padding: 5px;
+            """)
 
-        <br>
+            connect_btn = QPushButton("Bağlan")
+            connect_btn.setObjectName("Blue")
+            connect_btn.clicked.connect(lambda: self.connect(server))
 
-        {stype}
+            edit_btn = QPushButton("Düzenle")
+            edit_btn.clicked.connect(lambda: self.edit_server(server))
 
-        
-        <br>
+            delete_btn = QPushButton("Sil")
+            delete_btn.setObjectName("Red")
+            delete_btn.clicked.connect(lambda: self.remove_server(sid, name))
 
-        {username}@{host}:{port}
+            layout.addWidget(info)
+            layout.addStretch()
+            layout.addWidget(connect_btn)
+            layout.addWidget(edit_btn)
+            layout.addWidget(delete_btn)
 
-        <br>
-
-        {status}
-        """)
-
-    info.setStyleSheet("""
-    font-size:17px;
-    padding:5px;
-    """)
-
-    connect_btn = QPushButton("Bağlan")
-    connect_btn.setObjectName("Blue")
-    connect_btn.clicked.connect(lambda: self.connect(server))
-
-    edit_btn = QPushButton("Düzenle")
-    edit_btn.clicked.connect(lambda: self.edit_server(server))
-
-    delete_btn = QPushButton("Sil")
-    delete_btn.setObjectName("Red")
-    delete_btn.clicked.connect(lambda: self.remove_server(sid, name))
-
-    layout.addWidget(info)
-    layout.addStretch()
-    layout.addWidget(connect_btn)
-    layout.addWidget(edit_btn)
-    layout.addWidget(delete_btn)
-
-    card.setLayout(layout)
-    return card
+            card.setLayout(layout)  
+            return card
 
     def add_server(self):
         dialog = ServerDialog(self)

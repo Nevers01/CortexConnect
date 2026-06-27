@@ -1,13 +1,21 @@
 import sys
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QHBoxLayout, QVBoxLayout, QLabel,
-    QPushButton, QScrollArea, QFrame, QMessageBox
+    QApplication,
+    QWidget,
+    QHBoxLayout,
+    QVBoxLayout,
+    QLabel,
+    QPushButton,
+    QScrollArea,
+    QFrame,
+    QMessageBox,
 )
 from PyQt6.QtCore import Qt
 
 import db
 from connection import open_connection
 from server_dialog import ServerDialog
+from status import ping_host
 from styles import APP_STYLE
 
 
@@ -115,40 +123,59 @@ class CortexConnect(QWidget):
     def create_server_card(self, server):
         sid, name, stype, host, port, username, password, notes = server
 
-        card = QFrame()
-        card.setObjectName("Card")
+    card = QFrame()
+    card.setObjectName("Card")
 
-        layout = QHBoxLayout()
-        layout.setContentsMargins(18, 16, 18, 16)
+    layout = QHBoxLayout()
+    layout.setContentsMargins(18, 16, 18, 16)
 
-        icon = {
-            "SSH": "💻",
-            "RDP": "🖥️",
-            "VNC": "📺"
-        }.get(stype, "🌐")
+    icon = {"SSH": "💻", "RDP": "🖥️", "VNC": "📺"}.get(stype, "🌐")
 
-        info = QLabel(f"{icon}  {name}\n{stype}  •  {username}@{host}:{port}")
-        info.setStyleSheet("font-size: 17px;")
+    online = ping_host(host)
 
-        connect_btn = QPushButton("Bağlan")
-        connect_btn.setObjectName("Blue")
-        connect_btn.clicked.connect(lambda: self.connect(server))
+    status = "🟢 Online" if online else "🔴 Offline"
 
-        edit_btn = QPushButton("Düzenle")
-        edit_btn.clicked.connect(lambda: self.edit_server(server))
+    info = QLabel(f"""
+        <b>{icon} {name}</b>
 
-        delete_btn = QPushButton("Sil")
-        delete_btn.setObjectName("Red")
-        delete_btn.clicked.connect(lambda: self.remove_server(sid, name))
+        <br>
 
-        layout.addWidget(info)
-        layout.addStretch()
-        layout.addWidget(connect_btn)
-        layout.addWidget(edit_btn)
-        layout.addWidget(delete_btn)
+        {stype}
 
-        card.setLayout(layout)
-        return card
+        
+        <br>
+
+        {username}@{host}:{port}
+
+        <br>
+
+        {status}
+        """)
+
+    info.setStyleSheet("""
+    font-size:17px;
+    padding:5px;
+    """)
+
+    connect_btn = QPushButton("Bağlan")
+    connect_btn.setObjectName("Blue")
+    connect_btn.clicked.connect(lambda: self.connect(server))
+
+    edit_btn = QPushButton("Düzenle")
+    edit_btn.clicked.connect(lambda: self.edit_server(server))
+
+    delete_btn = QPushButton("Sil")
+    delete_btn.setObjectName("Red")
+    delete_btn.clicked.connect(lambda: self.remove_server(sid, name))
+
+    layout.addWidget(info)
+    layout.addStretch()
+    layout.addWidget(connect_btn)
+    layout.addWidget(edit_btn)
+    layout.addWidget(delete_btn)
+
+    card.setLayout(layout)
+    return card
 
     def add_server(self):
         dialog = ServerDialog(self)
@@ -162,7 +189,7 @@ class CortexConnect(QWidget):
                 data["port"],
                 data["username"],
                 data["password"],
-                data["notes"]
+                data["notes"],
             )
             self.load_servers()
 
@@ -179,16 +206,12 @@ class CortexConnect(QWidget):
                 data["port"],
                 data["username"],
                 data["password"],
-                data["notes"]
+                data["notes"],
             )
             self.load_servers()
 
     def remove_server(self, sid, name):
-        answer = QMessageBox.question(
-            self,
-            "Silinsin mi?",
-            f"{name} silinsin mi?"
-        )
+        answer = QMessageBox.question(self, "Silinsin mi?", f"{name} silinsin mi?")
 
         if answer == QMessageBox.StandardButton.Yes:
             db.delete_server(sid)

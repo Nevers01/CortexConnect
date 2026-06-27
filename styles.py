@@ -23,9 +23,10 @@ QFrame#Sidebar {
 }
 
 QFrame#Card {
-    background-color: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 14px;
+    background-color:#161b22;
+    border:1px solid #30363d;
+    border-radius:15px;
+    padding:10px;
 }
 
 QPushButton {

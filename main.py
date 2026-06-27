@@ -16,6 +16,7 @@ import db
 from services.connection import open_connection
 from dialogs.server_dialog import ServerDialog
 from services.status import ping_host
+from widgets.sidebar import Sidebar
 from styles import APP_STYLE
 
 
@@ -39,38 +40,8 @@ class CortexConnect(QWidget):
         self.load_servers()
 
     def build_sidebar(self):
-        sidebar = QFrame()
-        sidebar.setObjectName("Sidebar")
-        sidebar.setFixedWidth(260)
+        sidebar = Sidebar(on_add_server=self.add_server, on_refresh=self.load_servers)
 
-        layout = QVBoxLayout()
-        layout.setContentsMargins(22, 24, 22, 24)
-
-        title = QLabel("Cortex Connect")
-        title.setObjectName("Title")
-
-        subtitle = QLabel("Remote Station")
-        subtitle.setObjectName("SubTitle")
-
-        add_btn = QPushButton("+ Sunucu Ekle")
-        add_btn.setObjectName("Blue")
-        add_btn.clicked.connect(self.add_server)
-
-        refresh_btn = QPushButton("Yenile")
-        refresh_btn.clicked.connect(self.load_servers)
-
-        layout.addWidget(title)
-        layout.addWidget(subtitle)
-        layout.addSpacing(24)
-        layout.addWidget(add_btn)
-        layout.addWidget(refresh_btn)
-        layout.addStretch()
-
-        footer = QLabel("Cortex ThinClient v0.1")
-        footer.setObjectName("SubTitle")
-        layout.addWidget(footer)
-
-        sidebar.setLayout(layout)
         self.main_layout.addWidget(sidebar)
 
     def build_content(self):
@@ -128,11 +99,7 @@ class CortexConnect(QWidget):
         layout = QHBoxLayout()
         layout.setContentsMargins(18, 16, 18, 16)
 
-        icon = {
-            "SSH": "💻",
-            "RDP": "🖥️",
-            "VNC": "📺"
-        }.get(server.type, "🌐")
+        icon = {"SSH": "💻", "RDP": "🖥️", "VNC": "📺"}.get(server.type, "🌐")
 
         online = ping_host(server.host)
 
@@ -175,7 +142,7 @@ class CortexConnect(QWidget):
         card.setLayout(layout)
 
         return card
-    
+
     def add_server(self):
         dialog = ServerDialog(self)
 

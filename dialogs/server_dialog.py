@@ -1,6 +1,12 @@
 from PyQt6.QtWidgets import (
-    QDialog, QVBoxLayout, QFormLayout, QLineEdit,
-    QComboBox, QTextEdit, QPushButton, QMessageBox
+    QDialog,
+    QVBoxLayout,
+    QFormLayout,
+    QLineEdit,
+    QComboBox,
+    QTextEdit,
+    QPushButton,
+    QMessageBox,
 )
 
 
@@ -72,7 +78,7 @@ class ServerDialog(QDialog):
             "port": int(self.port.text().strip()),
             "username": self.username.text().strip(),
             "password": self.password.text(),
-            "notes": self.notes.toPlainText().strip()
+            "notes": self.notes.toPlainText().strip(),
         }
 
     def accept_data(self):

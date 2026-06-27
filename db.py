@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from models.server import Server
 
 APP_DIR = os.path.join(os.path.expanduser("~"), ".cortex-connect")
 DB_PATH = os.path.join(APP_DIR, "servers.db")
@@ -27,13 +28,38 @@ def init_db():
 
 def get_servers():
     with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
         cur = conn.cursor()
+
         cur.execute("""
-            SELECT id, name, type, host, port, username, password, notes
+            SELECT
+                id,
+                name,
+                type,
+                host,
+                port,
+                username,
+                password,
+                notes
             FROM servers
-            ORDER BY name ASC
+            ORDER BY name
         """)
-        return cur.fetchall()
+
+        rows = cur.fetchall()
+
+        return [
+            Server(
+                id=row["id"],
+                name=row["name"],
+                type=row["type"],
+                host=row["host"],
+                port=row["port"],
+                username=row["username"],
+                password=row["password"],
+                notes=row["notes"],
+            )
+            for row in rows
+        ]
 
 
 def add_server(name, server_type, host, port, username, password, notes):

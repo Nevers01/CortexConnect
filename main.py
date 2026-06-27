@@ -13,9 +13,9 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 
 import db
-from connection import open_connection
-from server_dialog import ServerDialog
-from status import ping_host
+from services.connection import open_connection
+from dialogs.server_dialog import ServerDialog
+from services.status import ping_host
 from styles import APP_STYLE
 
 
@@ -121,7 +121,6 @@ class CortexConnect(QWidget):
             self.server_layout.addWidget(self.create_server_card(server))
 
     def create_server_card(self, server):
-        sid, name, stype, host, port, username, password, notes = server
 
         card = QFrame()
         card.setObjectName("Card")
@@ -129,24 +128,31 @@ class CortexConnect(QWidget):
         layout = QHBoxLayout()
         layout.setContentsMargins(18, 16, 18, 16)
 
-        icon = {"SSH": "💻", "RDP": "🖥️", "VNC": "📺"}.get(stype, "🌐")
+        icon = {
+            "SSH": "💻",
+            "RDP": "🖥️",
+            "VNC": "📺"
+        }.get(server.type, "🌐")
 
-        online = ping_host(host)
+        online = ping_host(server.host)
+
         status = "🟢 Online" if online else "🔴 Offline"
 
         info = QLabel(f"""
-            <b>{icon} {name}</b>
+            <b>{icon} {server.name}</b>
             <br>
-            {stype}
+            {server.type}
             <br>
-            {username}@{host}:{port}
+            👤 {server.username}
+            <br>
+            🌐 {server.host}:{server.port}
             <br>
             {status}
-        """)
+            """)
 
         info.setStyleSheet("""
-            font-size: 17px;
-            padding: 5px;
+            font-size:17px;
+            padding:5px;
         """)
 
         connect_btn = QPushButton("Bağlan")
@@ -158,7 +164,7 @@ class CortexConnect(QWidget):
 
         delete_btn = QPushButton("Sil")
         delete_btn.setObjectName("Red")
-        delete_btn.clicked.connect(lambda: self.remove_server(sid, name))
+        delete_btn.clicked.connect(lambda: self.remove_server(server.id, server.name))
 
         layout.addWidget(info)
         layout.addStretch()
@@ -166,9 +172,10 @@ class CortexConnect(QWidget):
         layout.addWidget(edit_btn)
         layout.addWidget(delete_btn)
 
-        card.setLayout(layout)  
-        return card
+        card.setLayout(layout)
 
+        return card
+    
     def add_server(self):
         dialog = ServerDialog(self)
 

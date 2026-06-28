@@ -20,16 +20,16 @@ class Sidebar(QFrame):
         subtitle = QLabel("Remote Station")
         subtitle.setObjectName("SubTitle")
 
-        dashboard_btn = QPushButton("🏠 Dashboard")
-        servers_btn = QPushButton("🖥 Sunucular")
-        files_btn = QPushButton("📁 Dosyalar")
-        settings_btn = QPushButton("⚙ Ayarlar")
+        dashboard_btn = QPushButton("Dashboard")
+        servers_btn = QPushButton("Sunucular")
+        files_btn = QPushButton("Dosyalar")
+        settings_btn = QPushButton("Ayarlar")
 
-        add_btn = QPushButton("➕ Sunucu Ekle")
+        add_btn = QPushButton("+ Sunucu Ekle")
         add_btn.setObjectName("Blue")
         add_btn.clicked.connect(self.on_add_server)
 
-        refresh_btn = QPushButton("🔄 Yenile")
+        refresh_btn = QPushButton("Yenile")
         refresh_btn.clicked.connect(self.on_refresh)
 
         layout.addWidget(title)

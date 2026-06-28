@@ -11,7 +11,9 @@ class ServerCard(QFrame):
         layout = QHBoxLayout()
         layout.setContentsMargins(18, 16, 18, 16)
 
-        icon = {"SSH": "💻", "RDP": "🖥️", "VNC": "📺"}.get(server.type, "🌐")
+        icon = {"SSH": "[SSH]", "RDP": "[RDP]", "VNC": "[VNC]"}.get(
+            server.type, "[SRV]"
+        )
 
         status = "🟢 Online" if is_online else "🔴 Offline"
 

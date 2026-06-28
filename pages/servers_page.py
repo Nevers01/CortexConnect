@@ -1,11 +1,13 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea, QMessageBox
 from PyQt6.QtCore import Qt
 
-import db
+import services.DataBase as DataBase
 from widgets.server_card import ServerCard
 from dialogs.server_dialog import ServerDialog
-from connection import open_connection
-from status import ping_host
+from services.connection import open_connection
+from services.status import ping_host
+from PyQt6.QtWidgets import QTabWidget
+from widgets.ssh_terminal_tab import SshTerminalTab
 
 
 class ServersPage(QWidget):
@@ -39,6 +41,12 @@ class ServersPage(QWidget):
         wrapper.addWidget(desc)
         wrapper.addSpacing(16)
         wrapper.addWidget(scroll)
+        self.terminal_tabs = QTabWidget()
+        self.terminal_tabs.setTabsClosable(True)
+        self.terminal_tabs.tabCloseRequested.connect(self.close_terminal_tab)
+        self.terminal_tabs.setMinimumHeight(260)
+
+        wrapper.addWidget(self.terminal_tabs)
 
         self.setLayout(wrapper)
 
@@ -49,7 +57,7 @@ class ServersPage(QWidget):
             if widget:
                 widget.deleteLater()
 
-        servers = db.get_servers()
+        servers = DataBase.get_servers()
 
         if not servers:
             empty = QLabel("Henüz sunucu yok. Sol taraftan Sunucu Ekle.")
@@ -74,7 +82,7 @@ class ServersPage(QWidget):
 
         if dialog.exec():
             data = dialog.get_data()
-            db.add_server(
+            DataBase.add_server(
                 data["name"],
                 data["type"],
                 data["host"],
@@ -90,7 +98,7 @@ class ServersPage(QWidget):
 
         if dialog.exec():
             data = dialog.get_data()
-            db.update_server(
+            DataBase.update_server(
                 server.id,
                 data["name"],
                 data["type"],
@@ -106,11 +114,24 @@ class ServersPage(QWidget):
         answer = QMessageBox.question(self, "Silinsin mi?", f"{name} silinsin mi?")
 
         if answer == QMessageBox.StandardButton.Yes:
-            db.delete_server(server_id)
+            DataBase.delete_server(server_id)
             self.load_servers()
 
     def connect_server(self, server):
         try:
-            open_connection(server)
+            if server.type == "SSH":
+                tab = SshTerminalTab(server)
+                index = self.terminal_tabs.addTab(tab, server.name)
+                self.terminal_tabs.setCurrentIndex(index)
+            else:
+                open_connection(server)
         except Exception as e:
             QMessageBox.critical(self, "Bağlantı Hatası", str(e))
+
+    def close_terminal_tab(self, index):
+        widget = self.terminal_tabs.widget(index)
+
+        if hasattr(widget, "close_terminal"):
+            widget.close_terminal()
+
+        self.terminal_tabs.removeTab(index)

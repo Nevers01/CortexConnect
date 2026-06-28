@@ -8,12 +8,9 @@ def open_connection(server):
     if server.type == "SSH":
         cmd = [
             "ssh",
-            "-o",
-            "ServerAliveInterval=30",
-            "-o",
-            "ServerAliveCountMax=120",
-            "-p",
-            str(server.port),
+            "-o", "ServerAliveInterval=30",
+            "-o", "ServerAliveCountMax=120",
+            "-p", str(server.port),
             f"{server.username}@{server.host}",
         ]
 
@@ -33,24 +30,20 @@ def open_connection(server):
 
             subprocess.Popen(["mstsc", rdp_file])
         else:
-            subprocess.Popen(
-                [
-                    "xfreerdp",
-                    f"/v:{server.host}:{server.port}",
-                    f"/u:{server.username}",
-                    f"/p:{server.password}",
-                    "/dynamic-resolution",
-                    "/cert:ignore",
-                ]
-            )
+            subprocess.Popen([
+                "xfreerdp",
+                f"/v:{server.host}:{server.port}",
+                f"/u:{server.username}",
+                f"/p:{server.password}",
+                "/dynamic-resolution",
+                "/cert:ignore",
+            ])
 
     elif server.type == "VNC":
         if "windows" in system:
             raise RuntimeError("Windows tarafında VNC için viewer ayrıca kurulmalı.")
         else:
-            subprocess.Popen(
-                [
-                    "vncviewer",
-                    f"{server.host}:{server.port}",
-                ]
-            )
+            subprocess.Popen([
+                "vncviewer",
+                f"{server.host}:{server.port}",
+            ])

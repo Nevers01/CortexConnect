@@ -43,7 +43,4 @@ def open_connection(server):
         if "windows" in system:
             raise RuntimeError("Windows tarafında VNC için viewer ayrıca kurulmalı.")
         else:
-            subprocess.Popen([
-                "vncviewer",
-                f"{server.host}:{server.port}",
-            ])
+            subprocess.Popen(["vncviewer", f"{server.host}:{server.port}"])

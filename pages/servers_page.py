@@ -6,6 +6,8 @@ from widgets.server_card import ServerCard
 from dialogs.server_dialog import ServerDialog
 from services.connection import open_connection
 from services.status import ping_host
+from PyQt6.QtWidgets import QHBoxLayout
+from widgets.sidebar import Sidebar
 
 
 class ServersPage(QWidget):
@@ -17,6 +19,14 @@ class ServersPage(QWidget):
         self.load_servers()
 
     def build_ui(self):
+        main = QHBoxLayout()
+        main.setContentsMargins(0, 0, 0, 0)
+
+        sidebar = Sidebar(
+            on_add_server=self.add_server,
+            on_refresh=self.load_servers
+        )
+
         wrapper = QVBoxLayout()
         wrapper.setContentsMargins(26, 26, 26, 26)
 
@@ -42,7 +52,10 @@ class ServersPage(QWidget):
         wrapper.addSpacing(16)
         wrapper.addWidget(scroll)
 
-        self.setLayout(wrapper)
+        main.addWidget(sidebar)
+        main.addLayout(wrapper)
+
+        self.setLayout(main)
 
     def load_servers(self):
         while self.server_layout.count():

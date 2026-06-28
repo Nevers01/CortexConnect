@@ -1,9 +1,8 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QHBoxLayout, QTabWidget
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget
 
 import services.DataBase
 from pages.servers_page import ServersPage
-from widgets.sidebar import Sidebar
 from widgets.ssh_terminal_tab import SshTerminalTab
 from widgets.rdp_tab import RdpTab
 from styles import APP_STYLE
@@ -19,8 +18,8 @@ class CortexConnect(QWidget):
         self.setMinimumSize(900, 560)
         self.setStyleSheet(APP_STYLE)
 
-        self.main_layout = QHBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
 
         self.tabs = QTabWidget()
         self.tabs.setTabsClosable(True)
@@ -30,21 +29,24 @@ class CortexConnect(QWidget):
             on_open_ssh_tab=self.open_ssh_tab,
             on_open_rdp_tab=self.open_rdp_tab
         )
-        self.tabs.addTab(self.servers_page, "Sunucular")
-        self.tabs.tabBar().setTabButton(0, self.tabs.tabBar().ButtonPosition.RightSide, None)
 
-        self.sidebar = Sidebar(
-            on_add_server=self.servers_page.add_server,
-            on_refresh=self.servers_page.load_servers
+        self.tabs.addTab(self.servers_page, "Sunucular")
+        self.tabs.tabBar().setTabButton(
+            0,
+            self.tabs.tabBar().ButtonPosition.RightSide,
+            None
         )
 
-        self.main_layout.addWidget(self.sidebar)
-        self.main_layout.addWidget(self.tabs)
-
-        self.setLayout(self.main_layout)
+        layout.addWidget(self.tabs)
+        self.setLayout(layout)
 
     def open_ssh_tab(self, server):
         tab = SshTerminalTab(server)
+        index = self.tabs.addTab(tab, server.name)
+        self.tabs.setCurrentIndex(index)
+
+    def open_rdp_tab(self, server):
+        tab = RdpTab(server)
         index = self.tabs.addTab(tab, server.name)
         self.tabs.setCurrentIndex(index)
 
@@ -58,11 +60,6 @@ class CortexConnect(QWidget):
             widget.close_terminal()
 
         self.tabs.removeTab(index)
-
-    def open_rdp_tab(self, server):
-        tab = RdpTab(server)
-        index = self.tabs.addTab(tab, server.name)
-        self.tabs.setCurrentIndex(index)
 
 
 if __name__ == "__main__":

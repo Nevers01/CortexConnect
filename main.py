@@ -1,16 +1,17 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QHBoxLayout
+from PyQt6.QtWidgets import QApplication, QWidget, QHBoxLayout, QTabWidget
 
-import db
+import services.DataBase
 from pages.servers_page import ServersPage
 from widgets.sidebar import Sidebar
+from widgets.ssh_terminal_tab import SshTerminalTab
 from styles import APP_STYLE
 
 
 class CortexConnect(QWidget):
     def __init__(self):
         super().__init__()
-        db.init_db()
+        services.DataBase.init_db()
 
         self.setWindowTitle("Cortex Connect")
         self.resize(1100, 680)
@@ -20,7 +21,12 @@ class CortexConnect(QWidget):
         self.main_layout = QHBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
 
+        self.tabs = QTabWidget()
+        self.tabs.setTabsClosable(True)
+        self.tabs.tabCloseRequested.connect(self.close_tab)
+
         self.servers_page = ServersPage()
+        self.tabs.addTab(self.servers_page, "Sunucular")
 
         self.sidebar = Sidebar(
             on_add_server=self.servers_page.add_server,
@@ -28,9 +34,25 @@ class CortexConnect(QWidget):
         )
 
         self.main_layout.addWidget(self.sidebar)
-        self.main_layout.addWidget(self.servers_page)
+        self.main_layout.addWidget(self.tabs)
 
         self.setLayout(self.main_layout)
+
+    def open_ssh_tab(self, server):
+        tab = SshTerminalTab(server)
+        index = self.tabs.addTab(tab, server.name)
+        self.tabs.setCurrentIndex(index)
+
+    def close_tab(self, index):
+        if index == 0:
+            return
+
+        widget = self.tabs.widget(index)
+
+        if hasattr(widget, "close_terminal"):
+            widget.close_terminal()
+
+        self.tabs.removeTab(index)
 
 
 if __name__ == "__main__":

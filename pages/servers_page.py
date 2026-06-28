@@ -6,8 +6,6 @@ from widgets.server_card import ServerCard
 from dialogs.server_dialog import ServerDialog
 from services.connection import open_connection
 from services.status import ping_host
-from PyQt6.QtWidgets import QTabWidget
-from widgets.ssh_terminal_tab import SshTerminalTab
 
 
 class ServersPage(QWidget):
@@ -41,12 +39,6 @@ class ServersPage(QWidget):
         wrapper.addWidget(desc)
         wrapper.addSpacing(16)
         wrapper.addWidget(scroll)
-        self.terminal_tabs = QTabWidget()
-        self.terminal_tabs.setTabsClosable(True)
-        self.terminal_tabs.tabCloseRequested.connect(self.close_terminal_tab)
-        self.terminal_tabs.setMinimumHeight(260)
-
-        wrapper.addWidget(self.terminal_tabs)
 
         self.setLayout(wrapper)
 
@@ -118,20 +110,11 @@ class ServersPage(QWidget):
             self.load_servers()
 
     def connect_server(self, server):
+        if server.type == "SSH":
+            self.parent().open_ssh_tab(server)
+            return
+
         try:
-            if server.type == "SSH":
-                tab = SshTerminalTab(server)
-                index = self.terminal_tabs.addTab(tab, server.name)
-                self.terminal_tabs.setCurrentIndex(index)
-            else:
-                open_connection(server)
+            open_connection(server)
         except Exception as e:
             QMessageBox.critical(self, "Bağlantı Hatası", str(e))
-
-    def close_terminal_tab(self, index):
-        widget = self.terminal_tabs.widget(index)
-
-        if hasattr(widget, "close_terminal"):
-            widget.close_terminal()
-
-        self.terminal_tabs.removeTab(index)

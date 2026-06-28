@@ -9,8 +9,9 @@ from services.status import ping_host
 
 
 class ServersPage(QWidget):
-    def __init__(self):
+    def __init__(self, on_open_ssh_tab=None):
         super().__init__()
+        self.on_open_ssh_tab = on_open_ssh_tab
         self.build_ui()
         self.load_servers()
 
@@ -110,11 +111,13 @@ class ServersPage(QWidget):
             self.load_servers()
 
     def connect_server(self, server):
-        if server.type == "SSH":
-            self.parent().open_ssh_tab(server)
-            return
-
         try:
+            if server.type == "SSH":
+                if self.on_open_ssh_tab:
+                    self.on_open_ssh_tab(server)
+                return
+
             open_connection(server)
+
         except Exception as e:
             QMessageBox.critical(self, "Bağlantı Hatası", str(e))

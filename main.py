@@ -25,8 +25,11 @@ class CortexConnect(QWidget):
         self.tabs.setTabsClosable(True)
         self.tabs.tabCloseRequested.connect(self.close_tab)
 
-        self.servers_page = ServersPage()
+        self.servers_page = ServersPage(
+            on_open_ssh_tab=self.open_ssh_tab
+        )
         self.tabs.addTab(self.servers_page, "Sunucular")
+        self.tabs.tabBar().setTabButton(0, self.tabs.tabBar().ButtonPosition.RightSide, None)
 
         self.sidebar = Sidebar(
             on_add_server=self.servers_page.add_server,

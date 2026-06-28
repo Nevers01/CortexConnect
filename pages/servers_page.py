@@ -9,9 +9,10 @@ from services.status import ping_host
 
 
 class ServersPage(QWidget):
-    def __init__(self, on_open_ssh_tab=None):
+    def __init__(self, on_open_ssh_tab=None, on_open_rdp_tab=None):
         super().__init__()
         self.on_open_ssh_tab = on_open_ssh_tab
+        self.on_open_rdp_tab = on_open_rdp_tab
         self.build_ui()
         self.load_servers()
 
@@ -115,6 +116,11 @@ class ServersPage(QWidget):
             if server.type == "SSH":
                 if self.on_open_ssh_tab:
                     self.on_open_ssh_tab(server)
+                return
+
+            if server.type == "RDP":
+                if self.on_open_rdp_tab:
+                    self.on_open_rdp_tab(server)
                 return
 
             open_connection(server)

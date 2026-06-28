@@ -5,6 +5,7 @@ import services.DataBase
 from pages.servers_page import ServersPage
 from widgets.sidebar import Sidebar
 from widgets.ssh_terminal_tab import SshTerminalTab
+from widgets.rdp_tab import RdpTab
 from styles import APP_STYLE
 
 
@@ -26,7 +27,8 @@ class CortexConnect(QWidget):
         self.tabs.tabCloseRequested.connect(self.close_tab)
 
         self.servers_page = ServersPage(
-            on_open_ssh_tab=self.open_ssh_tab
+            on_open_ssh_tab=self.open_ssh_tab,
+            on_open_rdp_tab=self.open_rdp_tab
         )
         self.tabs.addTab(self.servers_page, "Sunucular")
         self.tabs.tabBar().setTabButton(0, self.tabs.tabBar().ButtonPosition.RightSide, None)
@@ -56,6 +58,11 @@ class CortexConnect(QWidget):
             widget.close_terminal()
 
         self.tabs.removeTab(index)
+
+    def open_rdp_tab(self, server):
+        tab = RdpTab(server)
+        index = self.tabs.addTab(tab, server.name)
+        self.tabs.setCurrentIndex(index)
 
 
 if __name__ == "__main__":

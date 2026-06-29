@@ -1,5 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget
+from PyQt6.QtCore import Qt
 
 import services.DataBase
 from pages.servers_page import ServersPage
@@ -14,8 +15,7 @@ class CortexConnect(QWidget):
         services.DataBase.init_db()
 
         self.setWindowTitle("Cortex Connect")
-        self.resize(1100, 680)
-        self.setMinimumSize(900, 560)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         self.setStyleSheet(APP_STYLE)
 
         layout = QVBoxLayout()
@@ -65,5 +65,5 @@ class CortexConnect(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = CortexConnect()
-    window.show()
+    window.setWindowState(Qt.WindowState.WindowFullScreen)
     sys.exit(app.exec())

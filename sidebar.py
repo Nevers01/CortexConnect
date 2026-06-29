@@ -47,7 +47,7 @@ class Sidebar(QFrame):
 
         layout.addStretch()
 
-        footer = QLabel("Cortex ThinClient v0.5.2")
+        footer = QLabel("Cortex ThinClient v0.5.3")
         footer.setObjectName("SubTitle")
         layout.addWidget(footer)
 

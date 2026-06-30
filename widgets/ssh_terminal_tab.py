@@ -1,8 +1,6 @@
-import os
 import subprocess
-
 from PyQt6.QtCore import QTimer
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSizePolicy
 
 
 class SshTerminalTab(QWidget):
@@ -13,14 +11,18 @@ class SshTerminalTab(QWidget):
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
-        self.placeholder = QLabel(f"{server.name} SSH terminali başlatılıyor...")
+        self.container = QWidget()
+        self.container.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        self.placeholder = QLabel(f"{server.name} SSH terminali başlatılıyor...", self.container)
         self.placeholder.setStyleSheet("padding: 12px; color: #8b949e;")
-        layout.addWidget(self.placeholder)
 
+        layout.addWidget(self.container, 1)
         self.setLayout(layout)
 
-        QTimer.singleShot(300, self.start_terminal)
+        QTimer.singleShot(800, self.start_terminal)
 
     def start_terminal(self):
         cmd = (
@@ -34,7 +36,8 @@ class SshTerminalTab(QWidget):
 
         self.process = subprocess.Popen([
             "xterm",
-            "-into", str(int(self.winId())),
+            "-into", str(int(self.container.winId())),
+            "-geometry", "200x60",
             "-fa", "Monospace",
             "-fs", "11",
             "-bg", "black",
@@ -44,6 +47,10 @@ class SshTerminalTab(QWidget):
         ])
 
         self.placeholder.hide()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.container.resize(self.size())
 
     def close_terminal(self):
         if self.process and self.process.poll() is None:

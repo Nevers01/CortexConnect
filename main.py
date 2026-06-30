@@ -2,7 +2,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget
 from PyQt6.QtCore import Qt
 
-import services.DataBase
+import services.db
 from pages.servers_page import ServersPage
 from widgets.ssh_terminal_tab import SshTerminalTab
 from widgets.rdp_tab import RdpTab
@@ -12,7 +12,7 @@ from styles import APP_STYLE
 class CortexConnect(QWidget):
     def __init__(self):
         super().__init__()
-        services.DataBase.init_db()
+        services.db.init_db()
 
         self.setWindowTitle("Cortex Connect")
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
@@ -37,7 +37,7 @@ class CortexConnect(QWidget):
             None
         )
 
-        layout.addWidget(self.tabs)
+        layout.addWidget(self.tabs, 1)
         self.setLayout(layout)
 
     def open_ssh_tab(self, server):

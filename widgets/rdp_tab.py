@@ -1,5 +1,5 @@
 import subprocess
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSizePolicy
 
 
@@ -14,19 +14,19 @@ class RdpTab(QWidget):
         layout.setSpacing(0)
 
         self.container = QWidget()
+        self.container.setAttribute(Qt.WidgetAttribute.WA_NativeWindow, True)
         self.container.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         self.placeholder = QLabel(f"{server.name} RDP başlatılıyor...", self.container)
-        self.placeholder.setStyleSheet("padding: 12px; color: #8b949e;")
 
         layout.addWidget(self.container, 1)
         self.setLayout(layout)
 
-        QTimer.singleShot(800, self.start_rdp)
+        QTimer.singleShot(1000, self.start_rdp)
 
     def start_rdp(self):
         width = max(self.container.width(), 1024)
-        height = max(self.container.height(), 768)
+        height = max(self.container.height() - 35, 720)
 
         self.process = subprocess.Popen([
             "xfreerdp",
@@ -40,10 +40,6 @@ class RdpTab(QWidget):
         ])
 
         self.placeholder.hide()
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self.container.resize(self.size())
 
     def close_terminal(self):
         if self.process and self.process.poll() is None:

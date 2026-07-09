@@ -26,7 +26,7 @@ class RdpTab(QWidget):
 
     def start_rdp(self):
         width = max(self.container.width(), 1024)
-        height = max(self.container.height() - 30, 720)
+        height = max(self.container.height() - 15, 720)
 
         self.process = subprocess.Popen([
             "xfreerdp",

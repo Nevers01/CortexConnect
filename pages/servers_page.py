@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea, QMessageBox
 from PyQt6.QtCore import Qt
 
-import services.DataBase as DataBase
+import services.db as DataBase
 from widgets.server_card import ServerCard
 from dialogs.server_dialog import ServerDialog
 from services.connection import open_connection

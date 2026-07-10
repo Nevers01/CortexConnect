@@ -6,7 +6,7 @@ import services.db as DataBase
 from pages.servers_page import ServersPage
 from widgets.ssh_tab import SSHTab
 from widgets.rdp_tab import RdpTab
-from styles.style import APP_STYLE
+from styles.app_style import APP_STYLE
 
 
 class CortexConnect(QWidget):

@@ -2,17 +2,17 @@ import sys
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QTabWidget
 from PyQt6.QtCore import Qt
 
-import services.db as Database
+import services.db as DataBase
 from pages.servers_page import ServersPage
 from widgets.ssh_tab import SSHTab
 from widgets.rdp_tab import RdpTab
-from styles.styles import APP_STYLE
+from styles.style import APP_STYLE
 
 
 class CortexConnect(QWidget):
     def __init__(self):
         super().__init__()
-        Database.init_db()
+        DataBase.init_db()
 
         self.setWindowTitle("Cortex Connect")
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)

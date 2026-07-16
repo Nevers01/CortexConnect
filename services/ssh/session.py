@@ -16,15 +16,23 @@ class SSHReader(QThread):
     def run(self):
         try:
             while self.running:
-                if self.channel.recv_ready():
-                    data = self.channel.recv(4096)
-                    text = data.decode("utf-8", errors="ignore")
-                    self.output_received.emit(text)
+                if self.channel.closed:
+                    break
 
-                self.msleep(30)
+                if self.channel.recv_ready():
+                    data = self.channel.recv(65535)
+
+                    if not data:
+                        break
+
+                    text = data.decode("utf-8", errors="replace")
+                    self.output_received.emit(text)
+                else:
+                    self.msleep(20)
 
         except Exception as e:
-            self.error_received.emit(str(e))
+            if self.running:
+                self.error_received.emit(str(e))
 
         finally:
             self.disconnected.emit()
@@ -63,7 +71,11 @@ class SSHSession(QObject):
                 timeout=10,
             )
 
-            self.channel = self.client.invoke_shell()
+            self.channel = self.client.invoke_shell(
+                term="xterm-256color",
+                width=120,
+                height=32,
+            )
             self.channel.settimeout(0.0)
 
             self.reader = SSHReader(self.channel)
@@ -77,10 +89,14 @@ class SSHSession(QObject):
         except Exception as e:
             self.error_received.emit(str(e))
 
-    def send(self, command):
+    def send_raw(self, data: bytes):
         try:
-            if self.channel:
-                self.channel.send(command + "\n")
+            if not self.channel or self.channel.closed:
+                self.error_received.emit("SSH kanalı açık değil.")
+                return
+
+            self.channel.send(data)
+
         except Exception as e:
             self.error_received.emit(str(e))
 
